@@ -1,3 +1,7 @@
+from core.router import Router
+from core.server import Server
+
+
 class Application:
     def __init__(self):
         self.router = Router()
