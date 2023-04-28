@@ -1,25 +1,25 @@
-import asyncio
-import uvloop
-from aiohttp import web
-
-from core.router import Router
-from core.middleware import security_middleware
-
-asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
-
-
 class Application:
     def __init__(self):
         self.router = Router()
+        self.middlewares = []
+
+    def add_route(self, path, handler):
+        self.router.add_route(path, handler)
+
+    def add_middleware(self, middleware):
+        self.middlewares.append(middleware)
 
     def route(self, path):
-        return self.router.route(path)
+        def decorator(handler):
+            self.add_route(path, handler)
+            return handler
 
-    def middleware(self, middleware_func):
-        return self.router.middleware(middleware_func)
+        return decorator
 
-    def run(self, host="127.0.0.1", port=8080):
-        app = web.Application(middlewares=[security_middleware])
-        self.router.register_routes(app)
+    async def handle_request(self, request):
+        response = await self.router.dispatch(request)
+        return response
 
-        web.run_app(app, host=host, port=port)
+    def run(self, host, port):
+        server = Server(self)
+        server.run(host, port)
