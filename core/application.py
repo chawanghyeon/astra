@@ -3,11 +3,32 @@ from core.middleware import Middleware
 from core.server import Server
 import asyncio
 
+import importlib
+import inspect
+import glob
 
-class Application:
+
+class Singleton(type):
+    _instances = {}
+
+    def __call__(cls, *args, **kwargs):
+        if cls not in cls._instances:
+            cls._instances[cls] = super().__call__(*args, **kwargs)
+        return cls._instances[cls]
+
+
+class Application(metaclass=Singleton):
     def __init__(self):
         self.router = Router()
         self.middlewares = []
+
+        views = glob.glob("views/*.py")
+        for view in views:
+            module_name = view.replace("/", ".").replace(".py", "")
+            module = importlib.import_module(module_name)
+            for name, func in inspect.getmembers(module, inspect.isfunction):
+                if hasattr(func, "_route_path"):
+                    self.router.add_route(func._route_path, func)
 
     def add_route(self, path, handler):
         self.router.add_route(path, handler)
@@ -17,7 +38,7 @@ class Application:
 
     def route(self, path):
         def decorator(handler):
-            self.add_route(path, handler)
+            handler._route_path = path
             return handler
 
         return decorator

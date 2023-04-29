@@ -35,9 +35,9 @@ class SimpleHttpProtocol(asyncio.Protocol):
         if self.parser.get_method() and self.parser.get_http_version():
             request = Request()
             request.method = self.parser.get_method().decode()
-            request.url = parse_url(self.url)
+            request.path = parse_url(self.url).path.decode()
             request.headers = self.headers
-            request.body = self.body
+            request.body = self.body.decode()
 
             if self.parser.should_keep_alive():
                 self.parser = HttpRequestParser(self)
