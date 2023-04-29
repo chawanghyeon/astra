@@ -2,7 +2,7 @@ class Response:
     def __init__(self, status_code=200, headers=None, body=None):
         self.status_code = status_code
         self.headers = headers if headers is not None else {}
-        self.body = body if body is not None else b""
+        self.body = body.encode() if body is not None else b""
 
     def set_header(self, key, value):
         self.headers[key.lower()] = value

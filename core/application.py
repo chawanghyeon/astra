@@ -1,4 +1,6 @@
-from core.routing import Router
+from core.request import Request
+from core.response import Response
+from core.router import Router
 from core.middleware import Middleware
 from core.server import Server
 import asyncio
@@ -11,7 +13,7 @@ import glob
 class Singleton(type):
     _instances = {}
 
-    def __call__(cls, *args, **kwargs):
+    def __call__(cls, *args, **kwargs) -> object:
         if cls not in cls._instances:
             cls._instances[cls] = super().__call__(*args, **kwargs)
         return cls._instances[cls]
@@ -30,20 +32,20 @@ class Application(metaclass=Singleton):
                 if hasattr(func, "_route_path"):
                     self.router.add_route(func._route_path, func)
 
-    def add_route(self, path, handler):
+    def add_route(self, path: str, handler: callable) -> None:
         self.router.add_route(path, handler)
 
-    def add_middleware(self, middleware):
+    def add_middleware(self, middleware: Middleware) -> None:
         self.middlewares.append(middleware)
 
-    def route(self, path):
-        def decorator(handler):
+    def route(self, path: str) -> callable:
+        def decorator(handler) -> callable:
             handler._route_path = path
             return handler
 
         return decorator
 
-    async def handle_request(self, request):
+    async def handle_request(self, request: Request) -> Response:
         for middleware in self.middlewares:
             request, response = await middleware.process_request(request)
             if response:
@@ -56,6 +58,6 @@ class Application(metaclass=Singleton):
 
         return response
 
-    def run(self, host, port):
+    def run(self, host: str, port: int) -> None:
         server = Server(self)
         asyncio.run(server.run(host, port))

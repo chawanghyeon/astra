@@ -6,7 +6,7 @@ class Router:
         self.routes = {}
 
     def add_route(self, path, handler):
-        self.routes[path] = handler
+        self.routes[path.encode()] = handler
 
     async def dispatch(self, request):
         handler = self.routes.get(request.path)

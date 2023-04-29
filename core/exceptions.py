@@ -1,10 +1,13 @@
+from typing import Optional
+
+
 class HttpException(Exception):
-    def __init__(self, status_code, message=None):
+    def __init__(self, status_code: int, message: Optional[str] = None):
         self.status_code = status_code
         self.message = message
         super().__init__(self.message)
 
-    def __str__(self):
+    def __str__(self) -> str:
         if self.message:
             return f"{self.status_code}: {self.message}"
         else:

@@ -10,18 +10,18 @@ class SimpleHttpProtocol(asyncio.Protocol):
         self.app = app
         self.parser = HttpRequestParser(self)
         self.transport = None
-        self.url = b""
         self.headers = {}
+        self.url = b""
         self.body = b""
 
-    def on_url(self, url):
-        self.url += url
+    def on_url(self, url: bytes):
+        self.url = url
 
-    def on_header(self, name, value):
+    def on_header(self, name: bytes, value: bytes):
         self.headers[name] = value
 
-    def on_body(self, body):
-        self.body += body
+    def on_body(self, body: bytes):
+        self.body = body
 
     def connection_made(self, transport):
         self.transport = transport
@@ -34,10 +34,11 @@ class SimpleHttpProtocol(asyncio.Protocol):
 
         if self.parser.get_method() and self.parser.get_http_version():
             request = Request()
-            request.method = self.parser.get_method().decode()
-            request.path = parse_url(self.url).path.decode()
+            request.method = self.parser.get_method()
+            request.version = self.parser.get_http_version()
+            request.path = parse_url(self.url).path
             request.headers = self.headers
-            request.body = self.body.decode()
+            request.body = self.body
 
             if self.parser.should_keep_alive():
                 self.parser = HttpRequestParser(self)
