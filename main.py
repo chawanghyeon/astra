@@ -6,9 +6,13 @@ app = Application()
 
 @app.route("/")
 async def hello(request):
-    return Response("Hello, world!")
+    return Response(body=b"Hello, world!")
 
 
 @app.route("/another")
 async def another_route(request):
-    return Response("This is another route!")
+    return Response(body=b"This is another route!")
+
+
+if __name__ == "__main__":
+    app.run("127.0.0.1", 8080)

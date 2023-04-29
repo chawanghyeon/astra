@@ -1,5 +1,7 @@
-from core.router import Router
+from core.routing import Router
+from core.middleware import Middleware
 from core.server import Server
+import asyncio
 
 
 class Application:
@@ -21,9 +23,18 @@ class Application:
         return decorator
 
     async def handle_request(self, request):
+        for middleware in self.middlewares:
+            request, response = await middleware.process_request(request)
+            if response:
+                return response
+
         response = await self.router.dispatch(request)
+
+        for middleware in reversed(self.middlewares):
+            response = await middleware.process_response(request, response)
+
         return response
 
     def run(self, host, port):
         server = Server(self)
-        server.run(host, port)
+        asyncio.run(server.run(host, port))

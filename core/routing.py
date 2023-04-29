@@ -14,4 +14,4 @@ class Router:
             response = await handler(request)
             return response
         else:
-            return Response("Not found", status_code=404)
+            return Response(status_code=404, body=b"Not found")
