@@ -1,6 +1,6 @@
 import asyncio
 import uvloop
-from httptools import HttpRequestParser, HttpParserError, parse_url
+from httptools import HttpRequestParser, HttpParserError, parse_url, HttpResponseParser
 from core.request import Request
 from core.response import Response
 
@@ -8,43 +8,23 @@ from core.response import Response
 class SimpleHttpProtocol(asyncio.Protocol):
     def __init__(self, app):
         self.app = app
-        self.parser = HttpRequestParser(self)
         self.transport = None
-        self.headers = {}
-        self.url = b""
-        self.body = b""
-
-    def on_url(self, url: bytes):
-        self.url = url
-
-    def on_header(self, name: bytes, value: bytes):
-        self.headers[name] = value
-
-    def on_body(self, body: bytes):
-        self.body = body
 
     def connection_made(self, transport):
         self.transport = transport
 
     def data_received(self, data):
+        request = Request()
         try:
-            self.parser.feed_data(data)
+            request.parser.feed_data(data)
         except HttpParserError:
             self.transport.close()
 
-        if self.parser.get_method() and self.parser.get_http_version():
-            request = Request()
-            request.method = self.parser.get_method()
-            request.version = self.parser.get_http_version()
-            request.path = parse_url(self.url).path
-            request.headers = self.headers
-            request.body = self.body
+        if request.parser.should_keep_alive():
+            request.parser = HttpRequestParser(request)
 
-            if self.parser.should_keep_alive():
-                self.parser = HttpRequestParser(self)
-
-            if self.parser.should_upgrade() is False:
-                asyncio.ensure_future(self.handle_request(request))
+        if request.parser.should_upgrade() is False:
+            asyncio.ensure_future(self.handle_request(request))
 
     async def handle_request(self, request):
         response = await self.app.handle_request(request)

@@ -1,14 +1,21 @@
 class Response:
+    DEFAULT_HEADERS = {
+        "content-type": "text/plain; charset=utf-8",
+        "server": "Astra/1.0",
+    }
+
     def __init__(self, status_code=200, headers=None, body=None):
         self.status_code = status_code
-        self.headers = headers if headers is not None else {}
+        self.headers = self.DEFAULT_HEADERS.copy()
+        if headers is not None:
+            self.headers.update({key.lower(): val for key, val in headers.items()})
         self.body = body.encode() if body is not None else b""
 
     def set_header(self, key, value):
         self.headers[key.lower()] = value
 
     def set_body(self, body):
-        self.body = body
+        self.body = body.encode() if body is not None else b""
 
     def build(self):
         status_line = f"HTTP/1.1 {self.status_code} {self._get_status_reason(self.status_code)}\r\n"
