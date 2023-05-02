@@ -6,16 +6,26 @@ class Response:
 
     def __init__(self, status_code=200, headers=None, body=None):
         self.status_code = status_code
-        self.headers = self.DEFAULT_HEADERS.copy()
+        self._headers = self.DEFAULT_HEADERS.copy()
         if headers is not None:
-            self.headers.update({key.lower(): val for key, val in headers.items()})
-        self.body = body.encode() if body is not None else b""
+            self.headers = headers
+        self.body = body
 
-    def set_header(self, key, value):
-        self.headers[key.lower()] = value
+    @property
+    def headers(self):
+        return self._headers
 
-    def set_body(self, body):
-        self.body = body.encode() if body is not None else b""
+    @headers.setter
+    def headers(self, new_headers):
+        self._headers.update({key.lower(): val for key, val in new_headers.items()})
+
+    @property
+    def body(self):
+        return self._body
+
+    @body.setter
+    def body(self, new_body):
+        self._body = new_body.encode() if new_body is not None else b""
 
     def build(self):
         status_line = f"HTTP/1.1 {self.status_code} {self._get_status_reason(self.status_code)}\r\n"
