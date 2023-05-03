@@ -30,7 +30,9 @@ class Application(metaclass=Singleton):
             module = importlib.import_module(module_name)
             for name, func in inspect.getmembers(module, inspect.isfunction):
                 if hasattr(func, "_route_path"):
-                    self.router.add_route(func._route_path, func)
+                    self.router.add_route(
+                        func._route_path[0], func, func._route_path[1]
+                    )
 
     def add_route(self, path: str, handler: callable) -> None:
         self.router.add_route(path, handler)
@@ -38,9 +40,9 @@ class Application(metaclass=Singleton):
     def add_middleware(self, middleware: Middleware) -> None:
         self.middlewares.append(middleware)
 
-    def route(self, path: str) -> callable:
+    def route(self, path: str, method: str = "GET") -> callable:
         def decorator(handler) -> callable:
-            handler._route_path = path
+            handler._route_path = (path, method)
             return handler
 
         return decorator
