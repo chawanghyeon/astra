@@ -1,13 +1,13 @@
+import asyncio
+import glob
+import importlib
+import inspect
+
+from core.middleware import Middleware
 from core.request import Request
 from core.response import Response
 from core.router import Router
-from core.middleware import Middleware
 from core.server import Server
-import asyncio
-
-import importlib
-import inspect
-import glob
 
 
 class Singleton(type):
@@ -23,7 +23,9 @@ class Application(metaclass=Singleton):
     def __init__(self):
         self.router = Router()
         self.middlewares = []
+        self._load_views()
 
+    def _load_views(self):
         views = glob.glob("views/*.py")
         for view in views:
             module_name = view.replace("/", ".").replace(".py", "")
