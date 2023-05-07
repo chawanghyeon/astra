@@ -1,4 +1,5 @@
 from core.request import Request
+from core.response import Response
 
 
 class Middleware:
@@ -9,15 +10,15 @@ class Middleware:
         if scope["type"] == "http":
             request = await self._get_request(scope, receive)
             # Pre-processing actions can be performed here
-            response = await self.app(request)
+            response = await self.app.handle_request(request)
             # Post-processing actions can be performed here
             await self._send_response(response, send)
         else:
             await self.app(scope, receive, send)
 
-    async def _get_request(self, scope, receive):
+    async def _get_request(self, scope, receive) -> Request:
         request = Request(scope, receive)
         return request
 
-    async def _send_response(self, response, send):
+    async def _send_response(self, response: Response, send) -> None:
         await send(response.build())
