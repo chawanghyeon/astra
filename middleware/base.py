@@ -3,7 +3,7 @@ from core.response import Response
 from typing import Callable, Optional, Tuple
 
 
-class Middleware:
+class BaseMiddleware:
     def __init__(self, app):
         self.app = app
 
