@@ -29,9 +29,7 @@ class Response:
 
     def build(self):
         status_line = f"HTTP/1.1 {self.status_code} {self._get_status_reason(self.status_code)}\r\n"
-        header_lines = "".join(
-            [f"{key}: {value}\r\n" for key, value in self.headers.items()]
-        )
+        header_lines = "".join([f"{key}: {value}\r\n" for key, value in self.headers.items()])
         response = f"{status_line}{header_lines}\r\n".encode("utf-8") + self.body
         return response
 

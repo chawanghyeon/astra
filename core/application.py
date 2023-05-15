@@ -32,9 +32,7 @@ class Application(metaclass=Singleton):
             module = importlib.import_module(module_name)
             for name, func in inspect.getmembers(module, inspect.isfunction):
                 if hasattr(func, "_route_path"):
-                    self.router.add_route(
-                        func._route_path[0], func, func._route_path[1]
-                    )
+                    self.router.add_route(func._route_path[0], func, func._route_path[1])
 
     def add_route(self, path: str, handler: callable) -> None:
         self.router.add_route(path, handler)

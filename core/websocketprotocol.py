@@ -1,7 +1,4 @@
 import asyncio
-import socket
-import struct
-from typing import Tuple
 
 
 class WebSocketProtocol(asyncio.Protocol):

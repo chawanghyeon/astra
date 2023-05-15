@@ -1,11 +1,9 @@
 from core.middleware import Middleware
-from core.request import Request
 from core.response import Response
-from typing import Callable
 
 
 class SecurityMiddleware(Middleware):
-    async def process_response(self, request: Request, response: Response) -> Response:
+    async def process_response(self, response: Response) -> Response:
         """
         Process the response before it is sent back to the client.
         Adds several security headers to the response.

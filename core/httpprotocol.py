@@ -1,6 +1,5 @@
 from httptools import HttpRequestParser, HttpParserError, parse_url, HttpResponseParser
 from core.request import Request
-from core.response import Response
 import asyncio
 
 
