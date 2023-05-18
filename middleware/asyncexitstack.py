@@ -3,21 +3,25 @@ from contextlib import AsyncExitStack
 from core.request import Request
 from core.response import Response
 from typing import Callable, Optional, Tuple
+from .database import AsyncDBConnection  # Hypothetical database connection class
 
 
 class AsyncExitStackMiddleware(BaseMiddleware):
-    def __init__(self, app):
-        super().__init__(app)
-        self.exit_stack = AsyncExitStack()
+    async def __call__(self, handler: Callable, request: Request) -> Response:
+        async with AsyncExitStack() as stack:
+            # Suppose we have a database connection to manage
+            db_conn = await stack.enter_async_context(AsyncDBConnection())
 
-    async def process_request(self, request: Request) -> Tuple[Request, Optional[Response]]:
-        # Enter the exit stack context
-        await self.exit_stack.enter_async_context(request)
+            # Add the connection to the request, so it's accessible in the handler
+            request.db_conn = db_conn
 
-        return await super().process_request(request)
+            # Now proceed with request processing and handler invocation
+            request, response = await self.process_request(request)
 
-    async def process_response(self, request: Request, response: Response) -> Response:
-        # Exit the exit stack context, this will cleanup any resources managed by the exit stack
-        await self.exit_stack.aclose()
+            if not response:
+                response = await handler(request)
 
-        return await super().process_response(request, response)
+            response = await self.process_response(request, response)
+
+            # The AsyncExitStack will automatically close the DB connection here
+        return response
