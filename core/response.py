@@ -1,3 +1,6 @@
+from core import status_codes
+
+
 class Response:
     DEFAULT_HEADERS = {
         "content-type": "text/plain; charset=utf-8",
@@ -35,12 +38,4 @@ class Response:
 
     @staticmethod
     def _get_status_reason(status_code):
-        status_reasons = {
-            200: "OK",
-            201: "Created",
-            204: "No Content",
-            400: "Bad Request",
-            404: "Not Found",
-            500: "Internal Server Error",
-        }
-        return status_reasons.get(status_code, "Unknown Status")
+        return getattr(status_codes, status_code, "Unknown Status")

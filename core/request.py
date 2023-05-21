@@ -14,7 +14,7 @@ class Request:
         self.path = parse_url(url).path.decode()
 
     def on_header(self, name: bytes, value: bytes):
-        self.headers[name.decode()] = value.decode()
+        self.headers[name.decode().lower()] = value.decode()
 
     def on_body(self, body: bytes):
         self.body = body.decode()
@@ -22,6 +22,9 @@ class Request:
     def on_message_complete(self):
         self.method = self.parser.get_method().decode()
         self.version = self.parser.get_http_version()
+
+    def get_header(self, name: str):
+        return self.headers.get(name.lower())
 
     def __repr__(self):
         return f"<Request method={self.method} path={self.path} version={self.version} headers={self.headers}>"
