@@ -1,11 +1,7 @@
-import logging
 from core.request import Request
 from core.response import Response
-from typing import Optional, Tuple
 
 from middlewares.base import BaseMiddleware
-
-logger = logging.getLogger(__name__)
 
 
 class SecurityMiddleware(BaseMiddleware):
@@ -16,14 +12,6 @@ class SecurityMiddleware(BaseMiddleware):
         "X-Powered-By": "none",
         "X-XSS-Protection": "1; mode=block",
     }
-
-    async def process_request(self, request: Request) -> Tuple[Request, Optional[Response]]:
-        """
-        Process the incoming request before it reaches the handler.
-        Here we log the request method and path using the built-in logging module instead of print.
-        """
-        logger.info(f"Received {request.method} request for {request.path}")
-        return await super().process_request(request)
 
     async def process_response(self, request: Request, response: Response) -> Response:
         """

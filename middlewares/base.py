@@ -1,5 +1,4 @@
 from abc import ABC, abstractmethod
-from typing import Callable
 
 from core.request import Request
 from core.response import Response
@@ -24,15 +23,3 @@ class BaseMiddleware(ABC):
         Override this method to add custom post-processing logic.
         """
         return response
-
-    async def __call__(self, handler: Callable, request: Request) -> Response:
-        # Process the incoming request
-        processed_request = await self.process_request(request)
-
-        # Call the next middleware or handler in the pipeline
-        response = await handler(processed_request)
-
-        # Process the outgoing response
-        processed_response = await self.process_response(request, response)
-
-        return processed_response

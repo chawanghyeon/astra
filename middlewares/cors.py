@@ -21,7 +21,9 @@ class CORS(BaseMiddleware):
             # If the request is a preflight request, respond immediately
             if request.method == "OPTIONS":
                 response = Response(status_code=204)
-                response.headers["Access-Control-Allow-Origin"] = origin
+                response.headers[
+                    "Access-Control-Allow-Origin"
+                ] = origin  # use the origin from the request
                 response.headers["Access-Control-Allow-Methods"] = "GET, POST, PUT, DELETE, OPTIONS"
                 response.headers["Access-Control-Allow-Headers"] = "Content-Type, Authorization"
                 response.headers["Access-Control-Max-Age"] = "86400"
@@ -34,7 +36,9 @@ class CORS(BaseMiddleware):
 
         # If the request is from an allowed origin, add the CORS headers to the response
         if origin in self.allow_origins or "*" in self.allow_origins:
-            response.headers["Access-Control-Allow-Origin"] = origin
+            response.headers[
+                "Access-Control-Allow-Origin"
+            ] = origin  # use the origin from the request
             response.headers["Access-Control-Allow-Methods"] = "GET, POST, PUT, DELETE, OPTIONS"
             response.headers["Access-Control-Allow-Headers"] = "Content-Type, Authorization"
 
