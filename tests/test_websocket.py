@@ -20,7 +20,7 @@ def start_server():
     server.wait()
 
 
-@pytest.mark.asyncio
+@pytest.fixture
 async def websocket():
     # This fixture will provide a WebSocket instance for each test
     uri = "ws://{SERVER_HOST}:{SERVER_PORT}"  # Change this to your WebSocket server URI
@@ -42,7 +42,7 @@ async def test_connect(websocket):
 async def test_send_receive(websocket):
     # Test send and receive functionality
     message = "Hello, WebSocket!"
-    await websocket.send(message)
+    await websocket.asend(message)
     received_message = await websocket.receive()
     assert received_message == message
 
@@ -50,5 +50,5 @@ async def test_send_receive(websocket):
 @pytest.mark.asyncio
 async def test_close(websocket):
     # Test if connection is closed
-    await websocket.close()
+    await websocket.aclose()
     assert websocket.websocket.closed
