@@ -1,7 +1,7 @@
 import asyncio
 import uvloop
 import logging
-from core.httpprotocol import HttpProtocol
+from core.http_protocol import HttpProtocol
 from core.websocket_protocol import WebSocketProtocol
 
 
