@@ -1,10 +1,10 @@
 import socket
+import subprocess
+import time
 import pytest
+from threading import Thread
 from core.websocket import WebSocket
 from settings import SERVER_HOST, SERVER_PORT
-from threading import Thread
-import time
-import subprocess
 
 
 class Server:
@@ -20,61 +20,55 @@ class Server:
         self.server.terminate()
         self.server.wait()
 
-    def is_ready(self):
+    @staticmethod
+    def is_server_ready(host, port):
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-            return s.connect_ex((SERVER_HOST, SERVER_PORT)) == 0
+            return s.connect_ex((host, port)) == 0
+
+    def is_ready(self):
+        return self.is_server_ready(SERVER_HOST, SERVER_PORT)
 
 
 @pytest.fixture(scope="session", autouse=True)
-def start_server():
+def server_fixture():
     server = Server()
 
-    # Start the server in a separate thread
     thread = Thread(target=server.start)
     thread.start()
 
-    # Wait for the server to start up
     while not server.is_ready():
         time.sleep(0.01)
 
-    yield  # This is where the testing happens
+    yield
 
-    # After testing, clean up by terminating the server process
     server.stop()
     thread.join()
 
 
 @pytest.fixture
-async def websocket(start_server):
-    # This fixture will provide a WebSocket instance for each test
+async def websocket_fixture(server_fixture):
     uri = f"ws://{SERVER_HOST}:{SERVER_PORT}"
-    websocket = WebSocket(uri)
-    await websocket.connect()
-    yield websocket
-    # Ensure the websocket is closed after each test
-    if not websocket.websocket.closed:
-        await websocket.aclose()
+    async with WebSocket(uri) as websocket:
+        await websocket.connect()
+        yield websocket
 
 
 @pytest.mark.asyncio
-async def test_connect(websocket):
-    # Test if connection is established
-    assert websocket.websocket.open
-    assert websocket.websocket.remote_address[0] == SERVER_HOST
-    assert websocket.websocket.remote_address[1] == SERVER_PORT
+async def test_connect(websocket_fixture):
+    assert websocket_fixture.websocket.open
+    assert websocket_fixture.websocket.remote_address[0] == SERVER_HOST
+    assert websocket_fixture.websocket.remote_address[1] == SERVER_PORT
 
 
 @pytest.mark.asyncio
-async def test_send_receive(websocket):
-    # Test send and receive functionality
+async def test_send_receive(websocket_fixture):
     message = "Hello, WebSocket!"
-    await websocket.send(message)
-    received_message = await websocket.receive()
+    await websocket_fixture.send(message)
+    received_message = await websocket_fixture.receive()
     assert received_message == message
 
 
 @pytest.mark.asyncio
-async def test_close(websocket):
-    # Test if connection is closed
-    await websocket.aclose()
-    assert websocket.websocket.closed
+async def test_close(websocket_fixture):
+    await websocket_fixture.aclose()
+    assert websocket_fixture.websocket.closed
