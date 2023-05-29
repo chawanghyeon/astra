@@ -1,4 +1,4 @@
-from abc import ABC, abstractmethod
+from abc import ABC
 
 from core.request import Request
 from core.response import Response
@@ -8,7 +8,6 @@ class BaseMiddleware(ABC):
     def __init__(self, app):
         self.app = app
 
-    @abstractmethod
     async def process_request(self, request: Request) -> Request:
         """
         Process the incoming request before it reaches the handler.
@@ -16,7 +15,6 @@ class BaseMiddleware(ABC):
         """
         return request
 
-    @abstractmethod
     async def process_response(self, request: Request, response: Response) -> Response:
         """
         Process the response before it is sent back to the client.

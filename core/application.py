@@ -1,4 +1,5 @@
 import asyncio
+import uvloop
 import glob
 import importlib
 import inspect
@@ -18,12 +19,13 @@ import settings
 
 class Application(metaclass=Singleton):
     def __init__(self):
+        asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
         self.router = Router()
         self.middlewares = []
         self.database = Database()
         self.loop = asyncio.get_event_loop()
-        self.loop.run_until_complete(self._load_views())
-        self.loop.run_until_complete(self._load_middlewares())
+        asyncio.run(self._load_views())
+        asyncio.run(self._load_middlewares())
 
     async def _load_module(self, module_name):
         return importlib.import_module(module_name)
@@ -115,7 +117,7 @@ class Application(metaclass=Singleton):
 
     def run(self, host: str, port: int) -> None:
         loop = asyncio.get_event_loop()
-        loop.run_until_complete(self.start())
+        asyncio.ensure_future(self.start())
         try:
             server = Server(self)
             loop.run_until_complete(server.run(host, port))
@@ -123,4 +125,8 @@ class Application(metaclass=Singleton):
             pass
         finally:
             loop.run_until_complete(self.stop())
+            server.stop()
             loop.close()
+
+    def is_running(self) -> bool:
+        return self.loop.is_running()

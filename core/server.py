@@ -1,5 +1,4 @@
 import asyncio
-import uvloop
 import logging
 from core.http_protocol import HttpProtocol
 from core.websocket_protocol import WebSocketProtocol
@@ -12,7 +11,6 @@ class Server:
         self.ws_server = None
 
     async def run(self, host, port):
-        asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
         loop = asyncio.get_event_loop()
 
         try:
@@ -30,9 +28,10 @@ class Server:
         finally:
             self.stop()
 
-    def stop(self):
+    async def stop(self):
         if self.http_server:
             self.http_server.close()
         if self.ws_server:
             self.ws_server.close()
+        await asyncio.gather(self.http_server.wait_closed(), self.ws_server.wait_closed())
         logging.info("Servers have been stopped.")

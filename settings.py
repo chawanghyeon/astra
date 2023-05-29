@@ -4,10 +4,9 @@
 MIDDLEWARE = [
     "middlewares.cors.CORSMiddleware",
     "middlewares.security.SecurityMiddleware",
-    "middlewares.async_exit_stack.AsyncExitStackMiddleware",
     "middlewares.https_redirect.HttpsRedirectMiddleware",
     "middlewares.trusted_host.TrustedHostMiddleware",
-    "middlewares.gzip.SessionMiddleware",
+    "middlewares.gzip.GzipMiddleware",
 ]
 
 # List of trusted hosts

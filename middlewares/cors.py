@@ -4,7 +4,7 @@ from core.response import Response
 from typing import List, Optional, Tuple
 
 
-class CORS(BaseMiddleware):
+class CORSMiddleware(BaseMiddleware):
     def __init__(self, app, allow_origins: List[str] = None):
         super().__init__(app)
         self.allow_origins = allow_origins if allow_origins is not None else ["*"]
