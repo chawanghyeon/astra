@@ -24,8 +24,8 @@ class Application(metaclass=Singleton):
         self.middlewares = []
         self.database = Database()
         self.loop = asyncio.get_event_loop()
-        asyncio.run(self._load_views())
-        asyncio.run(self._load_middlewares())
+        self.loop.create_task(self._load_views())
+        self.loop.create_task(self._load_middlewares())
 
     async def _load_module(self, module_name):
         return importlib.import_module(module_name)
@@ -109,23 +109,22 @@ class Application(metaclass=Singleton):
                 code=1001, reason="An error occurred while handling your message."
             )
 
-    async def start(self):
-        await self.database.connect()
+    # async def start(self):
+    #     await self.database.connect()
 
-    async def stop(self):
-        await self.database.disconnect()
+    # async def stop(self):
+    #     await self.database.disconnect()
 
     def run(self, host: str, port: int) -> None:
-        loop = asyncio.get_event_loop()
-        asyncio.ensure_future(self.start())
+        server = Server(self)
+        # asyncio.ensure_future(self.start())
         try:
-            server = Server(self)
-            loop.run_until_complete(server.run(host, port))
+            server.start_and_run_forever(host, port)
         except KeyboardInterrupt:
             pass
         finally:
-            loop.run_until_complete(self.stop())
-            server.stop()
+            loop = asyncio.get_event_loop()
+            # loop.run_until_complete(self.stop())
             loop.close()
 
     def is_running(self) -> bool:

@@ -1,4 +1,4 @@
-from httptools import HttpRequestParser, HttpParserError, parse_url, HttpResponseParser
+from httptools import HttpRequestParser, HttpParserError
 from core.request import Request
 import asyncio
 
