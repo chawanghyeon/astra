@@ -13,16 +13,18 @@ class HttpProtocol(asyncio.Protocol):
 
     def data_received(self, data):
         request = Request()
+        request.parser = HttpRequestParser(request)
+
         try:
             request.parser.feed_data(data)
         except HttpParserError:
             self.transport.close()
             return
 
-        if request.parser.should_keep_alive():
-            request.parser = HttpRequestParser(request)
-        else:
-            asyncio.ensure_future(self.handle_request(request))
+        asyncio.ensure_future(self.handle_request(request))
+
+        if not request.parser.should_keep_alive():
+            self.transport.close()
 
     async def handle_request(self, request):
         try:
@@ -31,6 +33,3 @@ class HttpProtocol(asyncio.Protocol):
         except Exception as e:
             # Handle or log the error here. For example:
             print(f"Error handling request: {e}")
-
-        if not request.parser.should_keep_alive():
-            self.transport.close()

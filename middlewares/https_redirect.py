@@ -12,9 +12,9 @@ class HttpsRedirectMiddleware(BaseMiddleware):
         If the scheme is not HTTPS, return a redirect response.
         """
         # Use HTTP as a default scheme if it's not set
-        scheme = request.scheme or "http"
+        scheme = request.headers.get("X-Forwarded-Proto", "").lower()
 
-        if scheme.lower() != "https":
+        if scheme != "https":
             # Construct the HTTPS URL
             https_url = f"https://{request.host}{request.path}"
             if request.query_string:
@@ -26,4 +26,4 @@ class HttpsRedirectMiddleware(BaseMiddleware):
             return request, response
 
         # If the request is already using HTTPS, proceed as normal
-        return await super().process_request(request)
+        return request, None

@@ -5,8 +5,8 @@ from typing import List, Optional, Tuple
 
 
 class CORSMiddleware(BaseMiddleware):
-    def __init__(self, app, allow_origins: List[str] = None):
-        super().__init__(app)
+    def __init__(self, allow_origins: List[str] = None):
+        super().__init__()
         self.allow_origins = allow_origins if allow_origins is not None else ["*"]
 
     async def process_request(self, request: Request) -> Tuple[Request, Optional[Response]]:

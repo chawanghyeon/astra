@@ -2,6 +2,7 @@ import asyncio
 import logging
 from core.http_protocol import HttpProtocol
 from core.websocket_protocol import WebSocketProtocol
+import uvloop
 
 
 class Server:
@@ -11,6 +12,7 @@ class Server:
         self.ws_server = None
 
     async def run(self, host, port):
+        asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
         loop = asyncio.get_event_loop()
 
         try:
@@ -43,3 +45,6 @@ class Server:
         finally:
             loop.run_until_complete(self.stop())
             loop.close()
+
+    def is_running(self):
+        return self.http_server.is_serving() and self.ws_server.is_serving()

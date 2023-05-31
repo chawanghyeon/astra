@@ -5,15 +5,12 @@ from core.response import Response
 
 
 class BaseMiddleware(ABC):
-    def __init__(self, app):
-        self.app = app
-
     async def process_request(self, request: Request) -> Request:
         """
         Process the incoming request before it reaches the handler.
         Override this method to add custom pre-processing logic.
         """
-        return request
+        return request, None
 
     async def process_response(self, request: Request, response: Response) -> Response:
         """

@@ -19,4 +19,4 @@ class SecurityMiddleware(BaseMiddleware):
         Insert HTTP security headers.
         """
         response.headers.update(self.SECURITY_HEADERS)
-        return await super().process_response(request, response)
+        return response

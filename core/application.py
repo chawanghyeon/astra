@@ -1,5 +1,3 @@
-import asyncio
-import uvloop
 import glob
 import importlib
 import inspect
@@ -19,33 +17,32 @@ import settings
 
 class Application(metaclass=Singleton):
     def __init__(self):
-        asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
         self.router = Router()
         self.middlewares = []
         self.database = Database()
-        self.loop = asyncio.get_event_loop()
-        self.loop.create_task(self._load_views())
-        self.loop.create_task(self._load_middlewares())
+        self.server = Server(self)
+        self._load_views()
+        self._load_middlewares()
 
-    async def _load_module(self, module_name):
+    def _load_module(self, module_name):
         return importlib.import_module(module_name)
 
-    async def _load_views(self):
+    def _load_views(self):
         module_names = [
             view.replace("/", ".").replace(".py", "") for view in glob.glob("views/*.py")
         ]
         for module_name in module_names:
-            module = await self._load_module(module_name)
+            module = self._load_module(module_name)
             for name, func in inspect.getmembers(module, inspect.isfunction):
                 if hasattr(func, "_route_path"):
                     self.router.add_route(func._route_path[0], func, func._route_path[1])
 
-    async def _load_middlewares(self):
+    def _load_middlewares(self):
         for middleware_path in settings.MIDDLEWARE:
             module_name, class_name = middleware_path.rsplit(".", 1)
-            module = await self._load_module(module_name)
+            module = self._load_module(module_name)
             MiddlewareClass = getattr(module, class_name)
-            self.add_middleware(MiddlewareClass(self))
+            self.add_middleware(MiddlewareClass())
 
     def add_route(self, path: str, handler: Callable) -> None:
         self.router.add_route(path, handler)
@@ -109,23 +106,5 @@ class Application(metaclass=Singleton):
                 code=1001, reason="An error occurred while handling your message."
             )
 
-    # async def start(self):
-    #     await self.database.connect()
-
-    # async def stop(self):
-    #     await self.database.disconnect()
-
     def run(self, host: str, port: int) -> None:
-        server = Server(self)
-        # asyncio.ensure_future(self.start())
-        try:
-            server.start_and_run_forever(host, port)
-        except KeyboardInterrupt:
-            pass
-        finally:
-            loop = asyncio.get_event_loop()
-            # loop.run_until_complete(self.stop())
-            loop.close()
-
-    def is_running(self) -> bool:
-        return self.loop.is_running()
+        self.server.start_and_run_forever(host, port)
