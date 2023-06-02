@@ -9,9 +9,12 @@ class Request:
         self.path = None
         self.headers = {}
         self.body = None
+        self.query_string = None
 
     def on_url(self, url: bytes):
         self.path = parse_url(url).path.decode()
+        if parse_url(url).query:
+            self.query_string = parse_url(url).query.decode()
 
     def on_header(self, name: bytes, value: bytes):
         self.headers[name.decode().lower()] = value.decode()
