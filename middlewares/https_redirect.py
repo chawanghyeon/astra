@@ -16,7 +16,7 @@ class HttpsRedirectMiddleware(BaseMiddleware):
 
         if scheme != "https":
             # Construct the HTTPS URL
-            https_url = f"https://{request.host}{request.path}"
+            https_url = f"https://{request.headers['host']}{request.path}"
             if request.query_string:
                 https_url += f"?{request.query_string}"
 
