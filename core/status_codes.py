@@ -71,7 +71,6 @@ LOOP_DETECTED = 508
 NOT_EXTENDED = 510
 NETWORK_AUTHENTICATION_REQUIRED = 511
 
-Copy code
 STATUS_REASON_PHRASES = {
     CONTINUE: "Continue",
     SWITCHING_PROTOCOLS: "Switching Protocols",
@@ -137,6 +136,7 @@ STATUS_REASON_PHRASES = {
     NOT_EXTENDED: "Not Extended",
     NETWORK_AUTHENTICATION_REQUIRED: "Network Authentication Required",
 }
+
 
 def get_status_reason(status_code):
     return STATUS_REASON_PHRASES.get(status_code, "Unknown Status")

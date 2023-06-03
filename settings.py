@@ -4,13 +4,13 @@
 MIDDLEWARE = [
     "middlewares.cors.CORSMiddleware",
     "middlewares.security.SecurityMiddleware",
-    "middlewares.https_redirect.HttpsRedirectMiddleware",
+    # "middlewares.https_redirect.HttpsRedirectMiddleware",
     "middlewares.trusted_host.TrustedHostMiddleware",
     "middlewares.gzip.GzipMiddleware",
 ]
 
 # List of trusted hosts
-ALLOWED_HOSTS = ["localhost", "127.0.0.1"]
+ALLOWED_HOSTS = ["localhost", "127.0.0.1:8080"]
 
 
 # Database settings

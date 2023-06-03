@@ -30,6 +30,7 @@ class HttpProtocol(asyncio.Protocol):
         try:
             response = await self.app.handle_request(request)
             self.transport.write(response.build())
+            self.transport.close()
         except Exception as e:
             # Handle or log the error here. For example:
             print(f"Error handling request: {e}")

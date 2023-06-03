@@ -9,11 +9,8 @@ from settings import ALLOWED_HOSTS
 
 class TrustedHostMiddleware(BaseMiddleware):
     async def process_request(self, request: Request) -> Tuple[Request, Optional[Response]]:
-        host = urlparse(request.url).hostname
+        host = request.headers.get("host", "")
         if host not in ALLOWED_HOSTS:
-            return request, Response(
-                status=FORBIDDEN,
-                content="Invalid host",
-            )
+            return request, Response(status_code=FORBIDDEN)
 
         return request, None
