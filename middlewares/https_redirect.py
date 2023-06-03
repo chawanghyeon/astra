@@ -21,7 +21,7 @@ class HttpsRedirectMiddleware(BaseMiddleware):
                 https_url += f"?{request.query_string}"
 
             # Create the redirect response
-            response = Response(status=MOVED_PERMANENTLY, headers={"Location": https_url})
+            response = Response(status_code=MOVED_PERMANENTLY, headers={"Location": https_url})
 
             return request, response
 
