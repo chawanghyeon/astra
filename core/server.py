@@ -31,20 +31,11 @@ class Server:
     async def stop(self):
         if self.http_server:
             self.http_server.close()
+            await self.http_server.wait_closed()
         if self.ws_server:
             self.ws_server.close()
-        await asyncio.gather(self.http_server.wait_closed(), self.ws_server.wait_closed())
+            await self.ws_server.wait_closed()
         logging.info("Servers have been stopped.")
 
-    def start_and_run_forever(self, host, port):
-        loop = asyncio.get_event_loop()
-        try:
-            loop.run_until_complete(self.run(host, port))
-        except KeyboardInterrupt:
-            pass
-        finally:
-            loop.run_until_complete(self.stop())
-            loop.close()
-
     def is_running(self):
-        return self.http_server.is_serving() and self.ws_server.is_serving()
+        return self.http_server is not None and self.ws_server is not None

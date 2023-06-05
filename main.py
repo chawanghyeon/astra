@@ -2,6 +2,13 @@ from core.application import Application
 from asyncio import run
 from settings import SERVER_HOST, SERVER_PORT
 
-if __name__ == "__main__":
+
+async def main():
     app = Application()
-    run(app.run(SERVER_HOST, SERVER_PORT))
+    try:
+        await app.server.run(SERVER_HOST, SERVER_PORT)
+    except KeyboardInterrupt:
+        await app.server.stop()
+
+if __name__ == "__main__":
+    run(main())

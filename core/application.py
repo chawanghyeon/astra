@@ -106,5 +106,5 @@ class Application(metaclass=Singleton):
                 code=1001, reason="An error occurred while handling your message."
             )
 
-    def run(self, host: str, port: int) -> None:
+    async def run(self, host: str, port: int) -> None:
         self.server.start_and_run_forever(host, port)

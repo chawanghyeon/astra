@@ -2,39 +2,28 @@ import pytest
 from core.websocket import WebSocket
 from settings import SERVER_HOST, SERVER_PORT
 
-from threading import Thread
 import time
 import asyncio
 from core.application import Application
 
 
-class Server:
-    def __init__(self):
-        self.app = Application()
-        self.loop = asyncio.new_event_loop()  # Create new event loop
-
-    def start(self):
-        asyncio.set_event_loop(self.loop)  # Set the new event loop for this thread
-        self.loop.run_until_complete(self.app.run(SERVER_HOST, SERVER_PORT))
-
-    def stop(self):
-        self.loop.close()
-
-    def is_ready(self):
-        return self.app.is_running()
+@pytest.fixture(scope='session')
+def session_event_loop(request):
+    loop = asyncio.get_event_loop_policy().new_event_loop()
+    yield loop
+    loop.close()
 
 
 @pytest.fixture(scope="session", autouse=True)
-def server_fixture():
-    server = Server()
+def server_fixture(session_event_loop):
+    app = Application()
+    session_event_loop.run_until_complete(app.server.run(SERVER_HOST, SERVER_PORT))
 
-    # Start server in a new thread
-    thread = Thread(target=server.start)
-    thread.start()
+    print(f"HTTP Server is running on http://{SERVER_HOST}:{SERVER_PORT}")
 
     # Give server some time to start
     timeout = time.time() + 5
-    while not server.is_ready():
+    while not app.server.is_ready():
         if time.time() > timeout:
             raise TimeoutError("Server is not ready after 5 seconds.")
         time.sleep(0.01)
@@ -42,8 +31,7 @@ def server_fixture():
     yield  # This is where the testing happens
 
     # Cleanup after testing
-    server.stop()
-    thread.join()
+    session_event_loop.run_until_complete(app.server.stop())
 
 
 # WebSocket URI
