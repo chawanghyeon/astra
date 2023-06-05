@@ -1,30 +1,26 @@
 import asyncio
+import websockets
 
-from core.websocket import WebSocket
 
-
-class WebSocketProtocol(asyncio.Protocol):
-    def __init__(self, app):
+class WebSocketProtocol(websockets.WebSocketServerProtocol):
+    def __init__(self, app, *args, **kwargs):
         self.app = app
-        self.websocket = None
-        self.transport = None
+        super().__init__(*args, **kwargs)
 
-    def connection_made(self, transport):
-        self.transport = transport
-        self.websocket = WebSocket(self.transport.get_extra_info("peername"))
+    async def process_message(self, path, message):
+        await self.app.router.dispatch_websocket(path, message)
 
-    async def data_received(self, data):
-        message = await self.websocket.receive()
-        asyncio.ensure_future(self.handle_message(message))
+    async def handler(self):
+        try:
+            await self.handshake()
+        except Exception:
+            return
 
-    async def handle_message(self, message):
-        path = message.path
-        await self.app.router.dispatch_websocket(path, self.websocket)
-
-    def connection_lost(self, exc):
-        self.transport = None
-
-    async def close(self):
-        if self.websocket:
-            await self.websocket.close()
-            self.websocket = None
+        path = self.path
+        try:
+            async for message in self:
+                asyncio.ensure_future(self.process_message(path, message))
+        except websockets.exceptions.ConnectionClosed:
+            pass
+        finally:
+            await self.close()

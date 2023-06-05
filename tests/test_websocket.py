@@ -2,37 +2,6 @@ import pytest
 from core.websocket import WebSocket
 from settings import SERVER_HOST, SERVER_PORT
 
-import time
-import asyncio
-from core.application import Application
-
-
-@pytest.fixture(scope='session')
-def session_event_loop(request):
-    loop = asyncio.get_event_loop_policy().new_event_loop()
-    yield loop
-    loop.close()
-
-
-@pytest.fixture(scope="session", autouse=True)
-def server_fixture(session_event_loop):
-    app = Application()
-    session_event_loop.run_until_complete(app.server.run(SERVER_HOST, SERVER_PORT))
-
-    print(f"HTTP Server is running on http://{SERVER_HOST}:{SERVER_PORT}")
-
-    # Give server some time to start
-    timeout = time.time() + 5
-    while not app.server.is_ready():
-        if time.time() > timeout:
-            raise TimeoutError("Server is not ready after 5 seconds.")
-        time.sleep(0.01)
-
-    yield  # This is where the testing happens
-
-    # Cleanup after testing
-    session_event_loop.run_until_complete(app.server.stop())
-
 
 # WebSocket URI
 uri = f"ws://{SERVER_HOST}:{SERVER_PORT + 1}"
