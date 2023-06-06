@@ -1,19 +1,14 @@
 from collections import defaultdict
+from typing import Callable
 from core.response import Response
 from core.status_codes import METHOD_NOT_ALLOWED, NOT_FOUND
+from utils.singleton import Singleton
 
 
-class Router:
+class Router(metaclass=Singleton):
     def __init__(self):
         self.routes = defaultdict(dict)
         self.websocket_routes = defaultdict(dict)
-
-    def add_route(self, path, handler, method="GET") -> None:
-        method = method.upper()
-        self.routes[path][method] = handler
-
-    def add_websocket_route(self, path, handler) -> None:
-        self.websocket_routes[path] = handler
 
     async def dispatch(self, request) -> Response:
         path_routes = self.routes.get(request.path)
@@ -34,3 +29,24 @@ class Router:
                 await websocket.send(response)
         else:
             await websocket.close(code=1001, reason="No handler found for this path.")
+
+
+router = Router()
+
+
+def route(path: str, method: str = "GET") -> Callable:
+    method = method.upper()
+
+    def decorator(handler: Callable) -> Callable:
+        router.routes[path][method] = handler
+        return handler
+
+    return decorator
+
+
+def websocket_route(path: str) -> Callable:
+    def decorator(handler: Callable) -> Callable:
+        router.websocket_routes[path] = handler
+        return handler
+
+    return decorator

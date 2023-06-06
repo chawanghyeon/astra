@@ -1,6 +1,5 @@
 import glob
 import importlib
-import inspect
 
 from typing import Any, Callable
 
@@ -32,10 +31,7 @@ class Application(metaclass=Singleton):
             view.replace("/", ".").replace(".py", "") for view in glob.glob("views/*.py")
         ]
         for module_name in module_names:
-            module = self._load_module(module_name)
-            for name, func in inspect.getmembers(module, inspect.isfunction):
-                if hasattr(func, "_route_path"):
-                    self.router.add_route(func._route_path[0], func, func._route_path[1])
+            self._load_module(module_name)
 
     def _load_middlewares(self):
         for middleware_path in settings.MIDDLEWARE:
@@ -49,20 +45,6 @@ class Application(metaclass=Singleton):
 
     def add_middleware(self, middleware: Any) -> None:
         self.middlewares.append(middleware)
-
-    def route(self, path: str, method: str = "GET") -> Callable:
-        def decorator(handler: Callable) -> Callable:
-            handler._route_path = (path, method)
-            return handler
-
-        return decorator
-
-    def websocket_route(self, path: str) -> Callable:
-        def decorator(handler: Callable) -> Callable:
-            self.router.add_websocket_route(path, handler)
-            return handler
-
-        return decorator
 
     async def handle_request(self, request: Request) -> Response:
         try:
