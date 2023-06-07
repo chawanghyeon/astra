@@ -13,6 +13,9 @@ from utils.singleton import Singleton
 
 import settings
 
+# TODO: Think about is it necessary to merge Application and Server classes
+# TODO: Think about is it necessary to merge Application.handle_dispatch and router.dispatch methods
+
 
 class Application(metaclass=Singleton):
     def __init__(self):
