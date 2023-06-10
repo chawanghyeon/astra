@@ -71,6 +71,7 @@ LOOP_DETECTED = 508
 NOT_EXTENDED = 510
 NETWORK_AUTHENTICATION_REQUIRED = 511
 
+# Status code to reason phrase mapping
 STATUS_REASON_PHRASES = {
     CONTINUE: "Continue",
     SWITCHING_PROTOCOLS: "Switching Protocols",
