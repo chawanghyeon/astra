@@ -10,6 +10,7 @@ from core.server import Server
 from core.database import Database
 from core.websocket import WebSocket
 from utils.singleton import Singleton
+import logging
 
 import settings
 
@@ -19,6 +20,11 @@ import settings
 
 class Application(metaclass=Singleton):
     def __init__(self):
+        logging.basicConfig(
+            filename="app.log",
+            level=logging.DEBUG,
+            format="%(asctime)s - %(levelname)s - %(message)s",
+        )
         self.router = Router()
         self.middlewares = []
         self.database = Database()
@@ -57,14 +63,14 @@ class Application(metaclass=Singleton):
                     return response
         except Exception as e:
             # Log the exception here
-            print(f"Error while processing request: {e}")
+            logging.error(f"Error while processing request: {e}")
             return Response(status_code=500, body="Internal Server Error")
 
         try:
             response = await self.router.dispatch(request)
         except Exception as e:
             # Log the exception here
-            print(f"Error while dispatching request: {e}")
+            logging.error(f"Error while dispatching request: {e}")
             return Response(status_code=500, body="Internal Server Error")
 
         try:
@@ -72,7 +78,7 @@ class Application(metaclass=Singleton):
                 response = await middleware.process_response(request, response)
         except Exception as e:
             # Log the exception here
-            print(f"Error while processing response: {e}")
+            logging.error(f"Error while processing response: {e}")
             return Response(status_code=500, body="Internal Server Error")
 
         return response
@@ -86,7 +92,7 @@ class Application(metaclass=Singleton):
                     await websocket.send(response)
         except Exception as e:
             # Log the exception here
-            print(f"Error while handling WebSocket message: {e}")
+            logging.error(f"Error while handling WebSocket message: {e}")
             await websocket.close(
                 code=1001, reason="An error occurred while handling your message."
             )
