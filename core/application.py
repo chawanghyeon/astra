@@ -17,7 +17,6 @@ import settings
 # TODO: Think about is it necessary to merge Application and Server classes
 # TODO: Think about is it necessary to merge Application.handle_dispatch and router.dispatch methods
 # TODO: Think about is it necessary to merge Application.handle_websocket and router.websocket_dispatch methods
-# TODO: Think about is it necessary to add async http stack
 
 
 class Application(metaclass=Singleton):
