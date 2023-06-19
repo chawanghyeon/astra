@@ -26,7 +26,7 @@ DATABASES = {
         "port": "your_mongodb_port",
     },
     "SQLITE": {
-        "database": "path_to_your_sqlite_database.db",
+        "database": "sqlite.db",
     },
 }
 
