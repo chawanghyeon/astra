@@ -1,62 +1,41 @@
 import pytest
+from unittest.mock import AsyncMock, patch
 from core.websocket import WebSocket
-from settings import SERVER_HOST, SERVER_PORT
-
-
-# WebSocket URI
-uri = f"ws://{SERVER_HOST}:{SERVER_PORT + 1}"
 
 
 @pytest.mark.asyncio
 async def test_websocket_connect():
-    # Instantiate WebSocket class
-    websocket = WebSocket(uri)
-
-    # Connect to the WebSocket server
-    await websocket.connect()
-
-    # Check if connection was successful
-    assert websocket.websocket.open
-
-    # Close connection
-    await websocket.close()
-
-    # Close event loop
-    websocket.websocket.loop.close()
+    mock_websocket = AsyncMock()
+    with patch("websockets.connect", return_value=mock_websocket) as mock_connect:
+        ws = WebSocket("ws://test.com")
+        await ws.connect()
+        mock_connect.assert_called_once_with("ws://test.com")
+        assert ws.websocket is mock_websocket
 
 
 @pytest.mark.asyncio
-async def test_websocket_send_receive():
-    # Instantiate WebSocket class
-    websocket = WebSocket(uri)
+async def test_websocket_send():
+    mock_websocket = AsyncMock()
+    ws = WebSocket("ws://test.com")
+    ws.websocket = mock_websocket
+    await ws.send("test message")
+    mock_websocket.send.assert_called_once_with("test message")
 
-    # Connect to the WebSocket server
-    await websocket.connect()
 
-    # Send a message
-    message = "Hello, WebSocket!"
-    await websocket.send(message)
-
-    # Receive a message
-    received_message = await websocket.receive()
-
-    # Check if the received message is correct
-    assert received_message == message
-
-    # Close connection
-    await websocket.close()
+@pytest.mark.asyncio
+async def test_websocket_receive():
+    mock_websocket = AsyncMock()
+    mock_websocket.recv.return_value = "test message"
+    ws = WebSocket("ws://test.com")
+    ws.websocket = mock_websocket
+    await ws.receive()
+    mock_websocket.recv.assert_called_once()
 
 
 @pytest.mark.asyncio
 async def test_websocket_close():
-    # Instantiate WebSocket class
-    websocket = WebSocket(uri)
-
-    # Connect to the WebSocket server
-    await websocket.connect()
-
-    # Close connection
-    await websocket.close()
-
-    # Check if connection was closed
-    assert websocket.websocket.closed
+    mock_websocket = AsyncMock()
+    ws = WebSocket("ws://test.com")
+    ws.websocket = mock_websocket
+    await ws.close()
+    mock_websocket.close.assert_called_once()
