@@ -7,7 +7,8 @@ class WebSocket:
         self.websocket = None
 
     async def connect(self):
-        self.websocket = await websockets.connect(self.uri)
+        async with websockets.connect(self.uri) as websocket:
+            self.websocket = websocket
 
     async def send(self, message: str):
         await self.websocket.send(message)

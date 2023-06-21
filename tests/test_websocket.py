@@ -5,14 +5,22 @@ import pytest
 from core.websocket import WebSocket
 
 
+# TODO: Make sure to run
 @pytest.mark.asyncio
 async def test_websocket_connect():
-    mock_websocket = AsyncMock()
+    class AsyncContextManagerMock:
+        async def __aenter__(self):
+            return AsyncMock()
+
+        async def __aexit__(self, exc_type, exc, tb):
+            pass
+
+    mock_websocket = AsyncContextManagerMock()
     with patch("websockets.connect", return_value=mock_websocket) as mock_connect:
         ws = WebSocket("ws://test.com")
         await ws.connect()
         mock_connect.assert_called_once_with("ws://test.com")
-        assert ws.websocket is mock_websocket
+        assert isinstance(ws.websocket, AsyncMock)
 
 
 @pytest.mark.asyncio
