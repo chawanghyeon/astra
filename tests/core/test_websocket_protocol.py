@@ -1,6 +1,6 @@
 import pytest
 from unittest.mock import AsyncMock
-from core.websocket_protocol import WebSocketProtocol  # replace with the actual import
+from core.websocket_protocol import WebSocketProtocol
 
 
 class MockApp:
