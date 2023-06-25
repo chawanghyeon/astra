@@ -139,5 +139,5 @@ STATUS_REASON_PHRASES = {
 }
 
 
-def get_status_reason(status_code):
+def get_status_reason(status_code: int) -> str:
     return STATUS_REASON_PHRASES.get(status_code, "Unknown Status")

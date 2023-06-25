@@ -1,15 +1,16 @@
-from middlewares.base import BaseMiddleware
+# type: ignore
+
 from core.request import Request
 from core.response import Response
-from typing import List, Optional, Tuple
+from middlewares.base import BaseMiddleware
 
 
 class CORSMiddleware(BaseMiddleware):
-    def __init__(self, allow_origins: List[str] = None):
+    def __init__(self, allow_origins: list[str] = None):
         super().__init__()
         self.allow_origins = allow_origins if allow_origins is not None else ["*"]
 
-    async def process_request(self, request: Request) -> Tuple[Request, Optional[Response]]:
+    async def process_request(self, request: Request) -> tuple[Request, Response | None]:
         origin = request.headers.get("origin")
 
         # If the request is from an allowed origin, add the CORS headers

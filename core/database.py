@@ -1,6 +1,9 @@
-import asyncpg
+# type: ignore
+
 import aiosqlite
+import asyncpg
 from motor.motor_asyncio import AsyncIOMotorClient
+
 from settings import DATABASES, DEFAULT_DATABASE
 
 

@@ -1,4 +1,7 @@
+# type: ignore
+
 import asyncio
+
 import websockets
 
 

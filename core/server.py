@@ -1,10 +1,14 @@
+# type: ignore
+
 import asyncio
 import logging
+import signal
+
+import uvloop
+
 from core.http_protocol import HttpProtocol
 from core.websocket_protocol import WebSocketProtocol
-import uvloop
 from settings import DEBUG
-import signal
 
 
 class Server:

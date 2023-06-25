@@ -1,7 +1,10 @@
+# type: ignore
+
 import gzip
-from middlewares.base import BaseMiddleware
+
 from core.request import Request
 from core.response import Response
+from middlewares.base import BaseMiddleware
 
 
 class GzipMiddleware(BaseMiddleware):
