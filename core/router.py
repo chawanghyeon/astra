@@ -1,11 +1,9 @@
-# type: ignore
-
 from collections import defaultdict
 
 from core import websocket
 from core.request import Request
 from core.response import Response
-from core.status_codes import METHOD_NOT_ALLOWED, NOT_FOUND
+from core.status import METHOD_NOT_ALLOWED, NOT_FOUND
 from utils.singleton import Singleton
 
 

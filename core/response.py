@@ -1,6 +1,4 @@
-# type: ignore
-
-from core.status_codes import OK, get_status_reason
+from core.status import Status
 
 
 class Response:
@@ -11,9 +9,9 @@ class Response:
 
     def __init__(
         self,
-        status_code: int = OK,
+        status_code: int = Status.OK,
         headers: dict[str, str] | None = None,
-        body: bytes | str | None = None,
+        body: bytes | None = None,
     ) -> None:
         self.status_code = status_code
         self._headers = self.DEFAULT_HEADERS.copy()
@@ -38,7 +36,9 @@ class Response:
         self._body = new_body.encode() if new_body is not None else b""
 
     def build(self) -> bytes:
-        status_line = f"HTTP/1.1 {self.status_code} {get_status_reason(self.status_code)}\r\n"
+        status_line = (
+            f"HTTP/1.1 {self.status_code} {Status.get_status_reason(self.status_code)}\r\n"
+        )
         header_lines = "".join([f"{key}: {value}\r\n" for key, value in self.headers.items()])
         response = f"{status_line}{header_lines}\r\n".encode() + (self.body or b"")
         return response

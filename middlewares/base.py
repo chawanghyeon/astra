@@ -5,7 +5,7 @@ from core.response import Response
 
 
 class BaseMiddleware(ABC):
-    async def process_request(self, request: Request) -> Request:
+    async def process_request(self, request: Request) -> tuple[Request, Response | None]:
         """
         Process the incoming request before it reaches the handler.
         Override this method to add custom pre-processing logic.

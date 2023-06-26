@@ -1,5 +1,3 @@
-# type: ignore
-
 import gzip
 
 from core.request import Request

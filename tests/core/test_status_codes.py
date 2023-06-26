@@ -1,10 +1,6 @@
 import pytest
-from core.status_codes import (
-    get_status_reason,
-    OK,
-    NOT_FOUND,
-    INTERNAL_SERVER_ERROR,
-)
+
+from core.status import INTERNAL_SERVER_ERROR, NOT_FOUND, OK, get_status_reason
 
 
 def test_get_status_reason():

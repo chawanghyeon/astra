@@ -1,8 +1,6 @@
-# type: ignore
-
 from core.request import Request
 from core.response import Response
-from core.status_codes import FORBIDDEN
+from core.status import FORBIDDEN
 from middlewares.base import BaseMiddleware
 from settings import ALLOWED_HOSTS
 

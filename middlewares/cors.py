@@ -1,5 +1,3 @@
-# type: ignore
-
 from core.request import Request
 from core.response import Response
 from middlewares.base import BaseMiddleware

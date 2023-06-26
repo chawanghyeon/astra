@@ -1,21 +1,19 @@
-# type: ignore
-
-import asyncio
+from asyncio import BaseTransport, Protocol, ensure_future
 
 from httptools import HttpParserError, HttpRequestParser
 
-from core.request import Request
+from core import Application, Request
 
 
-class HttpProtocol(asyncio.Protocol):
-    def __init__(self, app):
+class HttpProtocol(Protocol):
+    def __init__(self, app: Application):
         self.app = app
-        self.transport = None
+        self.transport: BaseTransport
 
-    def connection_made(self, transport):
+    def connection_made(self, transport: BaseTransport) -> None:
         self.transport = transport
 
-    def data_received(self, data):
+    def data_received(self, data: bytes) -> None:
         request = Request()
         request.parser = HttpRequestParser(request)
 
@@ -25,16 +23,12 @@ class HttpProtocol(asyncio.Protocol):
             self.transport.close()
             return
 
-        asyncio.ensure_future(self.handle_request(request))
+        ensure_future(self.handle_request(request))
 
         if not request.parser.should_keep_alive():
             self.transport.close()
 
-    async def handle_request(self, request):
-        try:
-            response = await self.app.handle_request(request)
-            self.transport.write(response.build())
-            self.transport.close()
-        except Exception as e:
-            # Handle or log the error here. For example:
-            print(f"Error handling request: {e}")
+    async def handle_request(self, request: Request) -> None:
+        response = await self.app.handle_request(request)
+        self.transport.write(response.build())  # type: ignore
+        self.transport.close()
