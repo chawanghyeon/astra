@@ -1,4 +1,4 @@
-from collections import defaultdict
+from typing import Any
 
 from core import websocket
 from core.request import Request
@@ -9,8 +9,8 @@ from utils.singleton import Singleton
 
 class Router(metaclass=Singleton):
     def __init__(self) -> None:
-        self.routes: defaultdict = defaultdict(dict)
-        self.websocket_routes: defaultdict = defaultdict(dict)
+        self.routes: dict[str, Any] = {}
+        self.websocket_routes: dict[str, Any] = {}
 
     async def dispatch(self, request: Request) -> Response:
         path_routes = self.routes.get(request.path)
