@@ -10,14 +10,13 @@ class Response:
     def __init__(
         self,
         status_code: int = Status.OK,
-        headers: dict[str, str] | None = None,
-        body: bytes | None = None,
+        headers: dict[str, str] = {},
+        body: str = "",
     ) -> None:
         self.status_code = status_code
         self._headers = self.DEFAULT_HEADERS.copy()
-        if headers is not None:
-            self.headers = headers
-        self._body = body
+        self.headers = headers if headers else {}
+        self._body: bytes = body.encode() if body else b""
 
     @property
     def headers(self) -> dict[str, str]:
@@ -28,7 +27,7 @@ class Response:
         self._headers.update({key.lower(): val for key, val in new_headers.items()})
 
     @property
-    def body(self) -> bytes | None:
+    def body(self) -> bytes:
         return self._body
 
     @body.setter
