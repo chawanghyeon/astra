@@ -8,7 +8,7 @@ class Request:
         self.parser = HttpRequestParser(self)
         self.method = None
         self.version = None
-        self.path = None
+        self.path: str = ""
         self.headers: dict[str, str] = {}
         self.body: str | None = None
         self.query_string = None
