@@ -1,3 +1,4 @@
+from collections.abc import Callable, Coroutine
 from typing import Any
 
 from core import Request, Response, Status, WebSocket
@@ -33,18 +34,18 @@ class Router(metaclass=Singleton):
 router = Router()
 
 
-def route(path: str, method: str = "GET") -> Any:
+def route(path: str, method: str = "GET") -> Callable[[Any], Any]:
     method = method.upper()
 
-    def decorator(handler: Any) -> Any:
+    def decorator(handler: Coroutine[Any, Any, Any]) -> Coroutine[Any, Any, Any]:
         router.routes[path][method] = handler
         return handler
 
     return decorator
 
 
-def websocket_route(path: str) -> Any:
-    def decorator(handler: Any) -> Any:
+def websocket_route(path: str) -> Callable[[Any], Any]:
+    def decorator(handler: Coroutine[Any, Any, Any]) -> Coroutine[Any, Any, Any]:
         router.websocket_routes[path] = handler
         return handler
 
