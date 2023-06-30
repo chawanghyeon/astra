@@ -1,6 +1,5 @@
-from core.request import Request
-from core.response import Response
-from middlewares.base import BaseMiddleware
+from core import Request, Response
+from middlewares import BaseMiddleware
 
 
 class SecurityMiddleware(BaseMiddleware):

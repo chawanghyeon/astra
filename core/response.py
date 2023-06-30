@@ -1,4 +1,4 @@
-from core.status import Status
+from core import Status
 
 
 class Response:

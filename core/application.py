@@ -4,7 +4,7 @@ import logging
 from types import ModuleType
 
 import settings
-from core import Database, Request, Response, Router, Server, Status, WebSocket
+from core import Database, Request, Response, Router, Server, Status
 from middlewares import BaseMiddleware
 from utils import Singleton
 
@@ -72,11 +72,3 @@ class Application(metaclass=Singleton):
             return await self.handle_exception(e, "Error while handling request")
 
         return response
-
-    async def handle_websocket(self, path: str, websocket: WebSocket) -> None:
-        try:
-            await self.router.dispatch_websocket(path, websocket)
-        except Exception as e:
-            # Log the exception here
-            logging.error(f"Error while handling WebSocket message: {e}")
-            await websocket.close()

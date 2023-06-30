@@ -1,7 +1,6 @@
 from abc import ABC
 
-from core.request import Request
-from core.response import Response
+from core import Request, Response
 
 
 class BaseMiddleware(ABC):

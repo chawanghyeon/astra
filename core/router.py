@@ -1,8 +1,8 @@
 from collections.abc import Callable, Coroutine
 from typing import Any
 
-from core import Request, Response, Status, WebSocket
-from utils.singleton import Singleton
+from core import Request, Response, Status
+from utils import Singleton
 
 
 class Router(metaclass=Singleton):
@@ -21,32 +21,16 @@ class Router(metaclass=Singleton):
 
         return Response(status_code=Status.NOT_FOUND, body="Not found")
 
-    async def dispatch_websocket(self, path: str, websocket: WebSocket) -> None:
-        handler = self.websocket_routes.get(path)
-        if handler:
-            message = await websocket.receive()
-            response = await handler(message)
-            await websocket.send(response)
-        else:
-            await websocket.close()
-
 
 router = Router()
+Handler = Coroutine[Any, Any, Any]
 
 
-def route(path: str, method: str = "GET") -> Callable[[Any], Any]:
+def route(path: str, method: str = "GET") -> Callable[[Handler], Handler]:
     method = method.upper()
 
-    def decorator(handler: Coroutine[Any, Any, Any]) -> Coroutine[Any, Any, Any]:
+    def decorator(handler: Handler) -> Handler:
         router.routes[path][method] = handler
-        return handler
-
-    return decorator
-
-
-def websocket_route(path: str) -> Callable[[Any], Any]:
-    def decorator(handler: Coroutine[Any, Any, Any]) -> Coroutine[Any, Any, Any]:
-        router.websocket_routes[path] = handler
         return handler
 
     return decorator
