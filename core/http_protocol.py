@@ -2,7 +2,8 @@ from asyncio import BaseTransport, Protocol, ensure_future
 
 from httptools import HttpParserError, HttpRequestParser
 
-from core import Application, Request
+from core.application import Application
+from core.request import Request
 
 
 class HttpProtocol(Protocol):

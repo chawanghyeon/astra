@@ -1,7 +1,8 @@
 import gzip
 
-from core import Request, Response
-from middlewares import BaseMiddleware
+from core.request import Request
+from core.response import Response
+from middlewares.base import BaseMiddleware
 
 
 class GzipMiddleware(BaseMiddleware):
@@ -9,7 +10,7 @@ class GzipMiddleware(BaseMiddleware):
         accept_encoding = request.headers.get("Accept-Encoding", "")
         if "gzip" in accept_encoding.lower():
             if isinstance(response.body, str):
-                response.body = response.body.encode()
+                response.body = response.body
             elif not isinstance(response.body, bytes):
                 raise TypeError(
                     f"Cannot compress response body of type {type(response.body).__name__}"

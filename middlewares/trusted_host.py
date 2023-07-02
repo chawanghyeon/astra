@@ -1,5 +1,7 @@
-from core import Request, Response, Status
-from middlewares import BaseMiddleware
+from core.request import Request
+from core.response import Response
+from core.status import Status
+from middlewares.base import BaseMiddleware
 from settings import ALLOWED_HOSTS
 
 

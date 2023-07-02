@@ -4,7 +4,8 @@ import signal
 
 import uvloop
 
-from core import Application, HttpProtocol
+from core.application import Application
+from core.http_protocol import HttpProtocol
 from settings import DEBUG
 
 

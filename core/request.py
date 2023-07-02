@@ -11,7 +11,7 @@ class Request:
         self.path: str = ""
         self.headers: dict[str, str] = {}
         self.body: str | None = None
-        self.query_string = None
+        self.query_string: str = ""
 
     def on_url(self, url: bytes) -> None:
         self.path = parse_url(url).path.decode()

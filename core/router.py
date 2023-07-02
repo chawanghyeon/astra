@@ -1,7 +1,9 @@
 from collections.abc import Callable, Coroutine
 from typing import Any
 
-from core import Request, Response, Status
+from core.request import Request
+from core.response import Response
+from core.status import Status
 from utils import Singleton
 
 
