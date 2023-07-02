@@ -21,4 +21,4 @@ async def test_gzip_middleware() -> None:
 
     assert processed_response.headers["Content-Encoding"] == "gzip"
     assert processed_response.headers["Vary"] == "Accept-Encoding"
-    assert gzip.decompress(processed_response.body) == b"test body"
+    assert gzip.compress(b"test body") in processed_response.build()

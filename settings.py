@@ -12,6 +12,9 @@ MIDDLEWARE = [
 # List of trusted hosts
 ALLOWED_HOSTS = ["localhost", "127.0.0.1:8080"]
 
+# List of CORS origins
+CORS_ORIGINS = [""]
+ALLOW_ALL_ORIGINS = True
 
 # Database settings
 DATABASES = {

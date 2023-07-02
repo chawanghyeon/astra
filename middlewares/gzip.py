@@ -1,5 +1,3 @@
-import gzip
-
 from core.request import Request
 from core.response import Response
 from middlewares.base import BaseMiddleware
@@ -16,6 +14,5 @@ class GzipMiddleware(BaseMiddleware):
                     f"Cannot compress response body of type {type(response.body).__name__}"
                 )
 
-            response.body = gzip.compress(response.body)
             response.headers.update({"Content-Encoding": "gzip", "Vary": "Accept-Encoding"})
         return response

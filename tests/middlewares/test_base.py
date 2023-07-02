@@ -1,7 +1,8 @@
 import pytest
 
-from core import Request, Response
-from middlewares import BaseMiddleware
+from core.request import Request
+from core.response import Response
+from middlewares.base import BaseMiddleware
 
 
 @pytest.mark.asyncio
