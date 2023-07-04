@@ -1,12 +1,12 @@
 import pytest
 
+from core import status
 from core.request import Request
 from core.response import Response
-from core.status import Status
 from middlewares.security import SecurityMiddleware
 
 
-def create_response_with_status(status_code: int = Status.OK) -> Response:
+def create_response_with_status(status_code: int = status.OK) -> Response:
     response = Response(status_code=status_code)
     return response
 

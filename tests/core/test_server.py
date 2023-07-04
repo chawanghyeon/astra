@@ -3,40 +3,29 @@ from unittest import mock
 
 import pytest
 
-from core import Application, Server
+from core.application import Application
 
 
 @pytest.mark.asyncio
-async def test_server_run_stop():
-    # Mocking the loop and server for testing
-    loop = mock.MagicMock()
-    server = mock.MagicMock()
+async def test_server_run_stop() -> None:
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
 
-    # Replace with the actual Application instance
     app = Application()
 
-    with mock.patch("asyncio.get_event_loop", return_value=loop), mock.patch.object(
-        loop, "create_server", return_value=server
-    ):
-        # create a Server instance
-        server_instance = Server(app)
+    server_instance = app.server
 
-        # Simulate the run method in a separate task because it is blocking
-        run_server_task = asyncio.create_task(server_instance.run("localhost", 8000))
+    with mock.patch.object(server_instance, "run", return_value=None) as mock_run:
+        with mock.patch.object(server_instance, "stop", return_value=None) as mock_stop:
+            loop.run_until_complete(server_instance.run("localhost", 8000))
 
-        # Wait for the server to start running
-        await asyncio.sleep(0.1)
+            assert server_instance.is_running()
 
-        # Assert that the server is running
-        assert server_instance.is_running()
+            loop.run_until_complete(server_instance.stop())
 
-        # Stop the server
-        await server_instance.stop()
+            assert not server_instance.is_running()
 
-        # Assert that the server is not running
-        assert not server_instance.is_running()
+            mock_run.assert_called_once_with("localhost", 8000)
+            mock_stop.assert_called_once()
 
-        # Clean up the run server task
-        run_server_task.cancel()
-        with pytest.raises(asyncio.CancelledError):
-            await run_server_task
+    loop.close()

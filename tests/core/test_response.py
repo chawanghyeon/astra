@@ -1,12 +1,13 @@
-from core import Response, Status
+from core import status
+from core.response import Response
 
 
 def test_response_init():
     response = Response(
-        status_code=Status.CREATED, headers={"X-Custom-Header": "test"}, body="Hello, World!"
+        status_code=status.CREATED, headers={"X-Custom-Header": "test"}, body="Hello, World!"
     )
 
-    assert response.status_code == Status.CREATED
+    assert response.status_code == status.CREATED
     assert response.headers == {
         "content-type": "text/plain; charset=utf-8",
         "server": "Astra/1.0",
@@ -17,7 +18,7 @@ def test_response_init():
 
 def test_response_build():
     response = Response(
-        status_code=Status.CREATED, headers={"X-Custom-Header": "test"}, body="Hello, World!"
+        status_code=status.CREATED, headers={"X-Custom-Header": "test"}, body="Hello, World!"
     )
     built_response = response.build()
 

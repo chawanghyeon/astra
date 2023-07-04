@@ -1,16 +1,19 @@
 import asyncio
 import logging
 import signal
+from typing import TYPE_CHECKING
 
 import uvloop
 
-from core.application import Application
+if TYPE_CHECKING:
+    from core.application import Application
+
 from core.http_protocol import HttpProtocol
 from settings import DEBUG
 
 
 class Server:
-    def __init__(self, app: Application) -> None:
+    def __init__(self, app: "Application") -> None:
         self.app = app
         self.http_server: asyncio.Server
 

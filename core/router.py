@@ -1,10 +1,10 @@
 from collections.abc import Callable, Coroutine
 from typing import Any
 
+from core import status
 from core.request import Request
 from core.response import Response
-from core.status import Status
-from utils import Singleton
+from utils.singleton import Singleton
 
 
 class Router(metaclass=Singleton):
@@ -19,9 +19,9 @@ class Router(metaclass=Singleton):
             if handler:
                 return await handler(request)
 
-            return Response(status_code=Status.METHOD_NOT_ALLOWED)
+            return Response(status_code=status.METHOD_NOT_ALLOWED)
 
-        return Response(status_code=Status.NOT_FOUND, body="Not found")
+        return Response(status_code=status.NOT_FOUND, body="Not found")
 
 
 router = Router()

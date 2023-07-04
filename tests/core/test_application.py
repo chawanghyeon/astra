@@ -2,8 +2,11 @@ from unittest.mock import Mock, patch
 
 import pytest
 
-from core import Application, Request, Response, Status
-from middlewares import BaseMiddleware
+from core import status
+from core.application import Application
+from core.request import Request
+from core.response import Response
+from middlewares.base import BaseMiddleware
 
 
 # Mock Router and Database as we are not testing them here
@@ -50,4 +53,4 @@ async def test_application(mock_server, mock_database, mock_router):
         exception = Exception("Test exception")
         error_response = await app.handle_exception(exception, "Test message")
         mock_logging.error.assert_called_once_with("Test message Test exception")
-        assert error_response.status_code == Status.INTERNAL_SERVER_ERROR
+        assert error_response.status_code == status.INTERNAL_SERVER_ERROR

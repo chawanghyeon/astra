@@ -4,14 +4,14 @@ import logging
 from types import ModuleType
 
 import settings
+from core import status
 from core.database import Database
 from core.request import Request
 from core.response import Response
 from core.router import Router
 from core.server import Server
-from core.status import Status
 from middlewares.base import BaseMiddleware
-from utils import Singleton
+from utils.singleton import Singleton
 
 
 class Application(metaclass=Singleton):
@@ -50,7 +50,7 @@ class Application(metaclass=Singleton):
 
     async def handle_exception(self, exception: Exception, error_msg: str) -> Response:
         logging.error(f"{error_msg} {exception}")
-        return Response(status_code=Status.INTERNAL_SERVER_ERROR)
+        return Response(status_code=status.INTERNAL_SERVER_ERROR)
 
     async def process_request(self, request: Request) -> tuple[Request, Response | None]:
         for middleware in self.middlewares:

@@ -1,7 +1,7 @@
 import pytest
 
+from core import status
 from core.request import Request
-from core.status import Status
 from middlewares.trusted_host import TrustedHostMiddleware
 from settings import ALLOWED_HOSTS
 
@@ -24,4 +24,4 @@ async def test_trusted_host_middleware() -> None:
     not_allowed_host_request = create_request_with_headers({"host": "not.allowed.host"})
     processed_request, response = await middleware.process_request(not_allowed_host_request)
     assert response is not None
-    assert response.status_code == Status.FORBIDDEN
+    assert response.status_code == status.FORBIDDEN

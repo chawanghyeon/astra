@@ -1,13 +1,16 @@
 from asyncio import BaseTransport, Protocol, ensure_future
+from typing import TYPE_CHECKING
 
 from httptools import HttpParserError, HttpRequestParser
 
-from core.application import Application
+if TYPE_CHECKING:
+    from core.application import Application
+
 from core.request import Request
 
 
 class HttpProtocol(Protocol):
-    def __init__(self, app: Application):
+    def __init__(self, app: "Application"):
         self.app = app
         self.transport: BaseTransport
 

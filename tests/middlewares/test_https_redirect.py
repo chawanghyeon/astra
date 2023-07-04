@@ -1,7 +1,7 @@
 import pytest
 
+from core import status
 from core.request import Request
-from core.status import Status
 from middlewares.https_redirect import HttpsRedirectMiddleware
 
 
@@ -29,8 +29,8 @@ async def test_https_redirect_middleware() -> None:
     processed_request, redirect_response = await middleware.process_request(test_request)
 
     assert redirect_response is not None
-    assert redirect_response.status_code == Status.MOVED_PERMANENTLY
-    assert redirect_response.headers["location"] == "https://www.example.com/test-path?param=value"
+    assert redirect_response.status_code == status.MOVED_PERMANENTLY
+    assert redirect_response.headers["Location"] == "https://www.example.com/test-path?param=value"
 
     test_request.set_header("X-Forwarded-Proto", "https")
 

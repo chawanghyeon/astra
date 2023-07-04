@@ -1,6 +1,6 @@
 import gzip
 
-from core.status import Status
+from core import status
 
 
 class Response:
@@ -11,7 +11,7 @@ class Response:
 
     def __init__(
         self,
-        status_code: int = Status.OK,
+        status_code: int = status.OK,
         headers: dict[str, str] = {},
         body: str = "",
     ) -> None:
@@ -21,7 +21,7 @@ class Response:
 
     def build(self) -> bytes:
         status_line = (
-            f"HTTP/1.1 {self.status_code} {Status.get_status_reason(self.status_code)}\r\n"
+            f"HTTP/1.1 {self.status_code} {status.get_status_reason(self.status_code)}\r\n"
         )
         header_lines = "".join([f"{key}: {value}\r\n" for key, value in self.headers.items()])
         body = self.body.encode() if isinstance(self.body, str) else self.body
