@@ -15,7 +15,9 @@ from settings import DEBUG
 class Server:
     def __init__(self, app: "Application") -> None:
         self.app = app
-        self.http_server: asyncio.Server
+        self.server: asyncio.Server
+        uvloop.install()
+        self.loop = asyncio.get_event_loop()
 
         if DEBUG:
             logging.basicConfig(
@@ -25,27 +27,39 @@ class Server:
             logging.disable(logging.NOTSET)
 
     async def run(self, host: str, port: int) -> None:
-        uvloop.install()
-        loop = asyncio.get_event_loop()
-
         for sig in ("SIGINT", "SIGTERM"):
-            loop.add_signal_handler(getattr(signal, sig), lambda: asyncio.create_task(self.stop()))
+            self.loop.add_signal_handler(
+                getattr(signal, sig), lambda: asyncio.create_task(self.stop())
+            )
 
         try:
-            self.http_server = await loop.create_server(lambda: HttpProtocol(self.app), host, port)
+            self.server = await self.loop.create_server(lambda: HttpProtocol(self.app), host, port)
 
             logging.info(f"HTTP Server is running on http://{host}:{port}")
 
-            await self.http_server.serve_forever()
+            await self.server.serve_forever()
         except Exception as e:
             logging.error(f"An error occurred: {str(e)}")
 
     async def stop(self) -> None:
         logging.info("Shutting down servers...")
-        if self.http_server:
-            self.http_server.close()
-            await self.http_server.wait_closed()
+        if self.server:
+            self.server.close()
+
+        if self.server:
+            await self.server.wait_closed()
+
+        if self.loop.is_running():
+            await self.loop.shutdown_default_executor()
+            await self.loop.shutdown_asyncgens()
+            tasks = asyncio.all_tasks(self.loop)
+            for task in tasks:
+                task.cancel()
+            self.loop.run_until_complete(asyncio.gather(*tasks, return_exceptions=True))
+            self.loop.stop()
+            self.loop.close()
+
         logging.info("Servers have been stopped.")
 
     def is_running(self) -> bool:
-        return self.http_server is not None
+        return self.server.is_serving() if self.server else False

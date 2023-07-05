@@ -5,9 +5,9 @@ from settings import ALLOW_ALL_ORIGINS, CORS_ORIGINS
 
 
 class CORSMiddleware(BaseMiddleware):
-    def __init__(self, allow_origins: list[str]):
+    def __init__(self, allow_origins: list[str] = CORS_ORIGINS):
         super().__init__()
-        self.allow_origins = allow_origins if allow_origins is not None else CORS_ORIGINS
+        self.allow_origins = allow_origins
         self.allow_all_origins = ALLOW_ALL_ORIGINS
 
     async def process_request(self, request: Request) -> tuple[Request, Response | None]:

@@ -6,7 +6,7 @@ from httptools import HttpRequestParser, parse_url
 class Request:
     def __init__(self) -> None:
         self.parser = HttpRequestParser(self)
-        self.method = None
+        self.method = ""
         self.version = None
         self.path: str = ""
         self.headers: dict[str, str] = {}
