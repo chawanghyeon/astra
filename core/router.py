@@ -1,4 +1,4 @@
-from collections.abc import Callable, Coroutine
+from collections.abc import Coroutine
 from typing import Any
 
 from core import status
@@ -28,10 +28,10 @@ router = Router()
 Handler = Coroutine[Any, Any, Any]
 
 
-def route(path: str, method: str = "GET") -> Callable[[Handler], Handler]:
+def route(path: str, method: str = "GET"):
     method = method.upper()
 
-    def decorator(handler: Handler) -> Handler:
+    def decorator(handler):
         router.routes[path][method] = handler
         return handler
 
