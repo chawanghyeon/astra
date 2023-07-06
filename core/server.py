@@ -3,8 +3,6 @@ import logging
 import signal
 from typing import TYPE_CHECKING
 
-import uvloop
-
 if TYPE_CHECKING:
     from core.application import Application
 
@@ -16,8 +14,6 @@ class Server:
     def __init__(self, app: "Application") -> None:
         self.app = app
         self.server: asyncio.Server
-        uvloop.install()
-        self.loop = asyncio.get_event_loop()
 
         if DEBUG:
             logging.basicConfig(
@@ -27,13 +23,12 @@ class Server:
             logging.disable(logging.NOTSET)
 
     async def run(self, host: str, port: int) -> None:
+        loop = asyncio.get_event_loop()
         for sig in ("SIGINT", "SIGTERM"):
-            self.loop.add_signal_handler(
-                getattr(signal, sig), lambda: asyncio.create_task(self.stop())
-            )
+            loop.add_signal_handler(getattr(signal, sig), lambda: asyncio.create_task(self.stop()))
 
         try:
-            self.server = await self.loop.create_server(lambda: HttpProtocol(self.app), host, port)
+            self.server = await loop.create_server(lambda: HttpProtocol(self.app), host, port)
 
             logging.info(f"HTTP Server is running on http://{host}:{port}")
 
@@ -45,13 +40,7 @@ class Server:
         logging.info("Shutting down servers...")
         if self.server:
             self.server.close()
-
-        if self.server:
             await self.server.wait_closed()
-
-        if self.loop.is_running():
-            self.loop.stop()
-            self.loop.close()
 
         logging.info("Servers have been stopped.")
 

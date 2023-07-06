@@ -1,6 +1,7 @@
 # type: ignore
+import asyncio
 
-from asyncio import run
+import uvloop
 
 from core.application import Application
 from settings import SERVER_HOST, SERVER_PORT
@@ -15,4 +16,5 @@ async def main() -> None:
 
 
 if __name__ == "__main__":
-    run(main())
+    with asyncio.Runner(loop_factory=uvloop.new_event_loop) as runner:
+        runner.run(main())
