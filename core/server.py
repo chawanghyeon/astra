@@ -50,12 +50,6 @@ class Server:
             await self.server.wait_closed()
 
         if self.loop.is_running():
-            await self.loop.shutdown_default_executor()
-            await self.loop.shutdown_asyncgens()
-            tasks = asyncio.all_tasks(self.loop)
-            for task in tasks:
-                task.cancel()
-            self.loop.run_until_complete(asyncio.gather(*tasks, return_exceptions=True))
             self.loop.stop()
             self.loop.close()
 
