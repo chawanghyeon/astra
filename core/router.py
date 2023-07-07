@@ -12,11 +12,21 @@ class Router(metaclass=Singleton):
         self.websocket_routes: dict[str, Any] = {}
 
     async def dispatch(self, request: Request) -> Response:
-        handler = self.routes.get(request.path + request.method)
-        if handler:
-            return await handler(request)
+        path_routes = self.routes.get(request.path)
+        if path_routes:
+            handler = path_routes.get(request.method)
+            if handler:
+                return await handler(request)
 
-        return Response(status_code=status.METHOD_NOT_ALLOWED)
+            return Response(status_code=status.METHOD_NOT_ALLOWED)
+
+        return Response(status_code=status.NOT_FOUND)
+
+    @classmethod
+    def reset(cls) -> None:
+        instance = cls()
+        instance.routes = {}
+        instance.websocket_routes = {}
 
 
 router = Router()
@@ -26,7 +36,9 @@ def route(path: str, method: str = "GET") -> Any:
     method = method.upper()
 
     def decorator(handler: Any) -> Any:
-        router.routes[path + method] = handler
+        if path not in router.routes:
+            router.routes[path] = {}
+        router.routes[path][method] = handler
         return handler
 
     return decorator
