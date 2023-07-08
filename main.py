@@ -13,6 +13,8 @@ async def main() -> None:
         await app.server.run(SERVER_HOST, SERVER_PORT)
     except KeyboardInterrupt:
         await app.server.stop()
+    finally:
+        return
 
 
 if __name__ == "__main__":
