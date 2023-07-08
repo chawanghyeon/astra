@@ -1,5 +1,5 @@
-from asyncio import BaseTransport, Protocol, ensure_future
-from typing import TYPE_CHECKING
+from asyncio import Protocol, ensure_future
+from typing import TYPE_CHECKING, Any
 
 from httptools import HttpParserError, HttpRequestParser
 
@@ -12,9 +12,9 @@ from core.request import Request
 class HttpProtocol(Protocol):
     def __init__(self, app: "Application"):
         self.app = app
-        self.transport: BaseTransport
+        self.transport: Any
 
-    def connection_made(self, transport: BaseTransport) -> None:
+    def connection_made(self, transport: Any) -> None:
         self.transport = transport
 
     def data_received(self, data: bytes) -> None:

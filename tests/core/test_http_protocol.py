@@ -1,29 +1,57 @@
-from asyncio import BaseTransport, ensure_future
-from unittest.mock import Mock
+import asyncio
+from asyncio import Transport
+from unittest.mock import AsyncMock, MagicMock
 
 import pytest
 from httptools import HttpRequestParser
 
-from core import Application, HttpProtocol, Request
+from core.application import Application
+from core.http_protocol import HttpProtocol
+from core.request import Request
 
 
 @pytest.mark.asyncio
-async def test_http_protocol():
-    mock_app = Mock(Application)
-    mock_transport = Mock(BaseTransport)
-    mock_request_parser = Mock(HttpRequestParser)
-    mock_request = Mock(Request, parser=mock_request_parser)
+async def test_connection_made() -> None:
+    app = MagicMock(spec=Application)
+    transport = MagicMock(spec=Transport)
 
-    http_protocol = HttpProtocol(mock_app)
+    protocol = HttpProtocol(app)
+    protocol.connection_made(transport)
 
-    http_protocol.connection_made(mock_transport)
-    assert http_protocol.transport == mock_transport
+    assert protocol.transport == transport
 
-    http_protocol.data_received(b"GET / HTTP/1.1\r\nHost: localhost:8000\r\n\r\n")
-    mock_request_parser.feed_data.assert_called_with(
-        b"GET / HTTP/1.1\r\nHost: localhost:8000\r\n\r\n"
-    )
 
-    await ensure_future(http_protocol.handle_request(mock_request))
-    mock_transport.write.assert_called()
-    mock_transport.close.assert_called()
+@pytest.mark.asyncio
+async def test_data_received() -> None:
+    app = AsyncMock(spec=Application)
+    transport = MagicMock(spec=Transport)
+    protocol = HttpProtocol(app)
+    protocol.connection_made(transport)
+
+    data = b"GET / HTTP/1.1\r\nHost: localhost:8000\r\n\r\n"
+    protocol.data_received(data)
+
+    while not app.handle_request.called:
+        await asyncio.sleep(0.1)
+
+    assert transport.write.call_count == 1
+    assert transport.close.call_count == 1
+    app.handle_request.assert_called_once()
+
+
+@pytest.mark.asyncio
+async def test_handle_request() -> None:
+    app = AsyncMock(spec=Application)
+    transport = MagicMock(spec=Transport)
+    protocol = HttpProtocol(app)
+    protocol.connection_made(transport)
+
+    request = Request()
+    request.parser = HttpRequestParser(request)
+    request.parser.feed_data(b"GET / HTTP/1.1\r\nHost: localhost:8000\r\n\r\n")
+
+    await protocol.handle_request(request)
+
+    assert transport.write.call_count == 1
+    assert transport.close.call_count == 1
+    app.handle_request.assert_called_with(request)

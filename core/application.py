@@ -5,7 +5,6 @@ from types import ModuleType
 
 import settings
 from core import status
-from core.database import Database
 from core.request import Request
 from core.response import Response
 from core.router import Router
@@ -23,7 +22,6 @@ class Application(metaclass=Singleton):
         )
         self.router = Router()
         self.middlewares: list[BaseMiddleware] = []
-        self.database = Database()
         self.server = Server(self)
         self._load_views()
         self._load_middlewares()

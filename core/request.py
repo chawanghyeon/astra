@@ -32,4 +32,4 @@ class Request:
         return self.headers.get(name.lower())
 
     def __repr__(self) -> str:
-        return f"<Request method={self.method} path={self.path} version={self.version}"
+        return f"<Request method={self.method} path={self.path} version={self.version}>"

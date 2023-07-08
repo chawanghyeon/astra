@@ -1,56 +1,67 @@
-from unittest.mock import Mock, patch
+from unittest.mock import patch
 
 import pytest
 
-from core import status
 from core.application import Application
 from core.request import Request
 from core.response import Response
+from core.status import INTERNAL_SERVER_ERROR
 from middlewares.base import BaseMiddleware
 
 
-# Mock Router and Database as we are not testing them here
-@patch("your_module.Router", autospec=True)
-@patch("your_module.Database", autospec=True)
-@patch("your_module.Server", autospec=True)
-@pytest.mark.asyncio
-async def test_application(mock_server, mock_database, mock_router):
-    with patch("your_module.glob.glob") as mock_glob, patch(
-        "your_module.importlib.import_module"
-    ) as mock_import_module, patch("your_module.logging") as mock_logging:
-        mock_middleware = Mock(spec=BaseMiddleware)
+class MockMiddleware(BaseMiddleware):
+    async def process_request(self, request):
+        return request, None
 
-        class MockModule:
-            def __init__(self):
-                self.MockMiddleware = Mock(return_value=mock_middleware)
+    async def process_response(self, request, response):
+        return response
 
-        mock_module = MockModule()
 
-        # Mocking the middlewares
-        mock_glob.return_value = ["middlewares/mock_middleware.py"]
-        mock_import_module.return_value = mock_module
+class TestApplication:
+    @pytest.fixture(autouse=True)
+    def setup(self):
+        self.app = Application()
+        self.app.middlewares = [MockMiddleware()]
 
-        # Mocking request and response
-        mock_request = Mock(spec=Request)
-        mock_response = Mock(spec=Response)
+    @pytest.mark.asyncio
+    async def test_process_request(self):
+        request = Request()
+        processed_request, response = await self.app.process_request(request)
 
-        app = Application()
+        assert processed_request == request
+        assert response is None
 
-        # Testing _load_views and _load_middlewares
-        app._load_views()
-        mock_glob.assert_called_once_with("views/*.py")
+    @pytest.mark.asyncio
+    async def test_process_response(self):
+        request = Request()
+        response = Response()
+        processed_response = await self.app.process_response(request, response)
 
-        app._load_middlewares()
-        mock_import_module.assert_called_with("mock_middleware")
-        assert app.middlewares == [mock_middleware]
+        assert processed_response == response
 
-        # Testing handle_request
-        mock_router.dispatch.return_value = mock_response
-        response = await app.handle_request(mock_request)
-        assert response == mock_response
-
-        # Testing handle_exception
+    @pytest.mark.asyncio
+    async def test_handle_exception(self):
         exception = Exception("Test exception")
-        error_response = await app.handle_exception(exception, "Test message")
-        mock_logging.error.assert_called_once_with("Test message Test exception")
-        assert error_response.status_code == status.INTERNAL_SERVER_ERROR
+        response = await self.app.handle_exception(exception, "Test error")
+
+        assert response.status_code == INTERNAL_SERVER_ERROR
+
+    @pytest.mark.asyncio
+    async def test_handle_request(self):
+        request = Request()
+        with patch.object(self.app.router, "dispatch", return_value=Response()) as mock_dispatch:
+            response = await self.app.handle_request(request)
+
+            assert response is not None
+            mock_dispatch.assert_called_once_with(request)
+
+    @pytest.mark.asyncio
+    async def test_handle_request_with_exception(self):
+        request = Request()
+        with patch.object(
+            self.app.router, "dispatch", side_effect=Exception("Test exception")
+        ) as mock_dispatch:
+            response = await self.app.handle_request(request)
+
+            assert response.status_code == INTERNAL_SERVER_ERROR
+            mock_dispatch.assert_called_once_with(request)
