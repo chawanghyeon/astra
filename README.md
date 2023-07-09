@@ -19,5 +19,9 @@ git clone https://github.com/chawanghyeon/astra.git
 ## **Quick Start**
 
 ```bash
+poetry install
+
+poetry shell
+
 python main.py
 ```
